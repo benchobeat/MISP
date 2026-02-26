@@ -1,9 +1,0 @@
-pymisp>=2.4.176
-requests>=2.31.0
-pyyaml>=6.0
-
-[dev]
-pytest>=7.0
-pytest-cov>=4.0
-responses>=0.23
-ruff>=0.1.0

@@ -1,2 +1,0 @@
-[console_scripts]
-qradar-misp-sync = qradar_misp_sync.cli:main
