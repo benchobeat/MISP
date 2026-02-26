@@ -1,0 +1,43 @@
+[Unit]
+Description=QRadar to MISP Bidirectional Sync Daemon
+Documentation=https://github.com/your-org/qradar-misp-sync
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=qradar-misp-sync
+Group=qradar-misp-sync
+
+# Main process
+ExecStart=/usr/local/bin/qradar-misp-sync --config /etc/qradar-misp-sync/config.yaml
+
+# Graceful shutdown via SIGTERM
+KillSignal=SIGTERM
+TimeoutStopSec=30
+
+# Restart on failure (but not on clean exit)
+Restart=on-failure
+RestartSec=30
+
+# Environment file for secrets (optional, use instead of config.yaml for tokens)
+# EnvironmentFile=-/etc/qradar-misp-sync/env
+
+# State directory
+StateDirectory=qradar-misp-sync
+# Creates /var/lib/qradar-misp-sync/ owned by the service user
+
+# Security hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/qradar-misp-sync
+PrivateTmp=true
+
+# Logging goes to journald by default
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=qradar-misp-sync
+
+[Install]
+WantedBy=multi-user.target

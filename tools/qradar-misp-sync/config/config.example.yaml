@@ -1,0 +1,122 @@
+# =============================================================================
+# QRadar -> MISP Sync Daemon Configuration
+# =============================================================================
+# Copy this file to config.yaml and fill in your values.
+# All sensitive values can be overridden via environment variables:
+#   QRADAR_URL, QRADAR_TOKEN, MISP_URL, MISP_KEY
+# =============================================================================
+
+# --- QRadar Connection ---
+qradar:
+  # QRadar Console URL (no trailing slash)
+  url: "https://qradar.example.com"
+
+  # QRadar API token (Admin > Authorized Services > Add)
+  # Override via env: QRADAR_TOKEN
+  api_token: "CHANGE_ME"
+
+  # Verify TLS certificate (set false for self-signed certs in lab/dev)
+  verify_ssl: true
+
+  # Request timeout in seconds
+  timeout: 120
+
+# --- MISP Connection ---
+misp:
+  # MISP instance URL
+  url: "https://misp.example.com"
+
+  # MISP auth key (Administration > List Auth Keys)
+  # Override via env: MISP_KEY
+  api_key: "CHANGE_ME"
+
+  # Verify TLS certificate
+  verify_ssl: true
+
+  # Distribution level for created events:
+  #   0 = Your organization only
+  #   1 = This community
+  #   2 = Connected communities
+  #   3 = All communities
+  distribution: 0
+
+  # Auto-publish events after creation?
+  # false = events stay unpublished for manual review
+  # true = events are published immediately
+  auto_publish: false
+
+  # Default tags applied to every created event
+  tags:
+    - "qradar"
+    - "automated-import"
+    - "tlp:amber"
+
+# --- Offense Polling ---
+poller:
+  # How often to poll QRadar for new offenses (seconds)
+  interval_seconds: 300
+
+  # Minimum offense magnitude to process (0-10)
+  # Recommended: 3 for most environments, 5 for noisy environments
+  min_magnitude: 3
+
+  # Maximum offenses to process per poll cycle
+  max_offenses_per_cycle: 50
+
+  # Optional: Only process these offense categories
+  # Leave empty to process ALL categories
+  # offense_filter_categories:
+  #   - "Command and Control"
+  #   - "Malware"
+  #   - "Exploitation"
+  #   - "DDoS"
+  #   - "Suspicious Activity"
+
+# --- AQL Enrichment ---
+enrichment:
+  # Enable AQL enrichment (extracts URLs, domains, hashes, usernames)
+  enabled: true
+
+  # Time window for AQL queries (how far back to look in offense events)
+  time_window: "24 HOURS"
+
+  # Maximum results per AQL query
+  max_results_per_query: 100
+
+  # AQL query timeout in seconds
+  aql_timeout: 120
+
+# --- Sighting Feedback ---
+# Reports back to MISP when QRadar detects known IoCs in live traffic
+sighting:
+  # Enable sighting feedback loop
+  enabled: true
+
+  # How often to run sighting feedback (seconds)
+  # Default: 3600 (1 hour)
+  interval_seconds: 3600
+
+  # How far back to pull IoCs from MISP for matching
+  misp_lookback: "30d"
+
+  # How far back to search in QRadar events for matches
+  qradar_lookback: "24 HOURS"
+
+  # Source name reported to MISP sightings
+  source_name: "QRadar"
+
+# --- Logging ---
+logging:
+  # Log level: DEBUG, INFO, WARNING, ERROR
+  level: "INFO"
+
+  # Optional log file (leave empty for stdout only, good for systemd)
+  file: ""
+
+  # Log rotation settings (only if file is set)
+  max_bytes: 10485760  # 10MB
+  backup_count: 5
+
+# --- State ---
+# Path to the JSON state file (survives daemon restarts)
+state_file: "/var/lib/qradar-misp-sync/state.json"
